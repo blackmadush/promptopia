@@ -1,20 +1,59 @@
-import Feed from "@components/Feed";
+// Create prompt page.jsx
 
-const Home = () => (
-  <section className="w-full flex-center flex-col">
-    <h1 className="head_text text-center">
-      Connect & Hire
-      <br className="max-md:hidden" />
-      <span className="orange_gradient text-center">Trusted Local Workers</span>
-    </h1>
-    <p className="desc text-center">
-      WorkerConnect is an open-source platform to find and hire skilled
-      professionals like gardeners, plumbers, cleaners, and more for your local
-      needs. Discover and connect with reliable workers in your area.
-    </p>
+"use client";
 
-    <Feed />
-  </section>
-);
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-export default Home;
+import Form from "@components/Form"; // Consider renaming to AdForm.jsx for clarity
+
+const CreatePrompt = () => {
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  const [submitting, setIsSubmitting] = useState(false);
+  const [post, setPost] = useState({ prompt: "", tag: "" }); // Consider renaming to { description: "", category: "" }
+
+  const createPrompt = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/ads/new", {
+        // Updated API endpoint
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          description: post.prompt, // Consider renaming to post.description
+          userId: session?.user.id,
+          category: post.tag, // Consider renaming to post.category
+        }),
+      });
+
+      if (response.ok) {
+        router.push("/");
+      } else {
+        console.error("Failed to create ad");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Form
+      type="Create"
+      post={post}
+      setPost={setPost}
+      submitting={submitting}
+      handleSubmit={createPrompt}
+    />
+  );
+};
+
+export default CreatePrompt;
