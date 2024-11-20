@@ -1,51 +1,20 @@
-"use client";
+import Feed from "@components/Feed";
 
-import { useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+const Home = () => (
+  <section className="w-full flex-center flex-col">
+    <h1 className="head_text text-center">
+      Connect & Hire
+      <br className="max-md:hidden" />
+      <span className="orange_gradient text-center">Trusted Local Workers</span>
+    </h1>
+    <p className="desc text-center">
+      WorkerConnect is an open-source platform to find and hire skilled
+      professionals like gardeners, plumbers, cleaners, and more for your local
+      needs. Discover and connect with reliable workers in your area.
+    </p>
 
-import Form from "@components/Form";
+    <Feed />
+  </section>
+);
 
-const CreatePrompt = () => {
-  const router = useRouter();
-  const { data: session } = useSession();
-
-  const [submitting, setIsSubmitting] = useState(false);
-  const [post, setPost] = useState({ prompt: "", tag: "" });
-
-  const createPrompt = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch("/api/prompt/new", {
-        method: "POST",
-        body: JSON.stringify({
-          prompt: post.prompt,
-          userId: session?.user.id,
-          tag: post.tag,
-        }),
-      });
-
-      if (response.ok) {
-        router.push("/");
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <Form
-      type='Create'
-      post={post}
-      setPost={setPost}
-      submitting={submitting}
-      handleSubmit={createPrompt}
-    />
-  );
-};
-
-export default CreatePrompt;
+export default Home;
